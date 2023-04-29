@@ -8,28 +8,16 @@ namespace Bonsai.Core
     /// <summary>
     /// The tree blueprint asset used.
     /// </summary>
-    [SerializeField]
     public BehaviourTree TreeBlueprint;
 
     // Tree instance of the blueprint. This is a clone of the tree blueprint asset.
     // The tree instance is what runs in game.
     internal BehaviourTree treeInstance;
 
-    void Awake()
-    {
-      if (TreeBlueprint)
-      {
-        treeInstance = BehaviourTree.Clone(TreeBlueprint);
-        treeInstance.actor = gameObject;
-      }
-      else
-      {
-        Debug.LogError("The behaviour tree is not set for " + gameObject);
-      }
-    }
-
     void Start()
     {
+      treeInstance = BehaviourTree.Clone(TreeBlueprint);
+      treeInstance.actor = gameObject;
       treeInstance.Start();
       treeInstance.BeginTraversal();
     }
