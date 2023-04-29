@@ -21,6 +21,13 @@ namespace Bonsai.Core
       treeInstance.Update();
     }
 
+    public void Reset()
+    {
+      treeInstance.Interrupt();
+      treeInstance.Start();
+      treeInstance.BeginTraversal();
+    }
+    
     void OnDestroy()
     {
       Destroy(treeInstance);
