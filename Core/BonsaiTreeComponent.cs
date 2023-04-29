@@ -5,24 +5,18 @@ namespace Bonsai.Core
 {
   public class BonsaiTreeComponent : MonoBehaviour
   {
-    /// <summary>
-    /// The tree blueprint asset used.
-    /// </summary>
-    public BehaviourTree TreeBlueprint;
+    public void SetBlueprint(BehaviourTree blueprint) {
+        treeInstance = BehaviourTree.Clone(blueprint);
+        treeInstance.actor = gameObject;
+        treeInstance.Start();
+        treeInstance.BeginTraversal();
+    }
 
     // Tree instance of the blueprint. This is a clone of the tree blueprint asset.
     // The tree instance is what runs in game.
     internal BehaviourTree treeInstance;
-
-    void Start()
-    {
-      treeInstance = BehaviourTree.Clone(TreeBlueprint);
-      treeInstance.actor = gameObject;
-      treeInstance.Start();
-      treeInstance.BeginTraversal();
-    }
-
-    void Update()
+    
+    public void Tick()
     {
       treeInstance.Update();
     }
