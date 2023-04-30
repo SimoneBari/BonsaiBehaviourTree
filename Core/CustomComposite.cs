@@ -1,4 +1,4 @@
-﻿
+
 using UnityEngine;
 
 namespace Bonsai.Core
@@ -6,50 +6,40 @@ namespace Bonsai.Core
   /// <summary>
   /// The base class for all composite nodes.
   /// </summary>
-  public abstract class Composite : BehaviourNode
+  public abstract class CustomComposite : Composite
   {
-    [SerializeField, HideInInspector]
-    protected BehaviourNode[] children;
+    protected BehaviourIterator CompositeIterator;
 
-    protected Status lastChildExitStatus;
-    public int CurrentChildIndex { get; protected set; } = 0;
-
-    public virtual BehaviourNode CurrentChild()
+    public override void OnStart()
     {
-      if (CurrentChildIndex < children.Length)
+      CompositeIterator = new BehaviourIterator(Tree, levelOrder + 1);
+      var count = ChildCount();
+      for (int i = 0; i < count; i++)
       {
-        return children[CurrentChildIndex];
+        foreach (var node in TreeTraversal.PreOrderSkipChildren(GetChildAt(i), n => n is ParallelComposite || n is CustomComposite))
+        {
+          node.Iterator = CompositeIterator;
+        }
       }
-
-      return null;
     }
 
-    /// <summary>
-    /// Default behaviour is to immediately traverse the first child.
-    /// </summary>
     public override void OnEnter()
     {
       CurrentChildIndex = 0;
       var next = CurrentChild();
+      
       if (next)
       {
-        Iterator.Traverse(next);
+        CompositeIterator.Traverse(next);
       }
     }
 
-    public BehaviourNode[] Children
+    public override void OnExit()
     {
-      get { return children; }
-    }
-
-    public sealed override int ChildCount()
-    {
-      return children.Length;
-    }
-
-    public sealed override BehaviourNode GetChildAt(int index)
-    {
-      return children[index];
+        if (CompositeIterator.IsRunning)
+        {
+          BehaviourTree.Interrupt(Children[CurrentChildIndex]);
+        }
     }
 
     /// <summary>
@@ -59,7 +49,7 @@ namespace Bonsai.Core
     /// <note>To clear children references, pass an empty array.</note>
     /// </summary>
     /// <param name="nodes">The children for the node. Should not be null.</param>
-    public virtual void SetChildren(BehaviourNode[] nodes)
+    public override void SetChildren(BehaviourNode[] nodes)
     {
       children = nodes;
       // Set index orders.
@@ -72,6 +62,7 @@ namespace Bonsai.Core
       foreach (BehaviourNode child in children)
       {
         child.Parent = this;
+        child.Iterator = CompositeIterator;
       }
     }
 
@@ -82,6 +73,7 @@ namespace Bonsai.Core
     public override void OnAbort(int childIndex)
     {
       // The default behaviour is to set the current child index of the composite node.
+      // TODO
       CurrentChildIndex = childIndex;
     }
 
@@ -94,11 +86,5 @@ namespace Bonsai.Core
       CurrentChildIndex++;
       lastChildExitStatus = childStatus;
     }
-
-    public sealed override int MaxChildCount()
-    {
-      return int.MaxValue;
-    }
-
   }
 }

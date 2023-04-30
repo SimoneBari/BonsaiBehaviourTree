@@ -221,7 +221,7 @@ namespace Bonsai.Core
       // Assign the main iterator to nodes not under any parallel nodes.
       // Children under parallel nodes will have iterators assigned by the parallel parent.
       // Each branch under a parallel node use their own branch iterator.
-      foreach (BehaviourNode node in TreeTraversal.PreOrderSkipChildren(Root, n => n is ParallelComposite))
+      foreach (BehaviourNode node in TreeTraversal.PreOrderSkipChildren(Root, n => n is ParallelComposite || n is CustomComposite))
       {
         node.Iterator = mainIterator;
       }
