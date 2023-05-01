@@ -21,6 +21,11 @@ namespace Bonsai.Core
       treeInstance.Update();
     }
 
+    public bool IsRunning()
+    {
+      return treeInstance.IsRunning();
+    }
+
     public void Reset()
     {
       treeInstance.Interrupt();
